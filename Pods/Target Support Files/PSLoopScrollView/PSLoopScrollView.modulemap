@@ -1,0 +1,6 @@
+framework module PSLoopScrollView {
+  umbrella header "PSLoopScrollView-umbrella.h"
+
+  export *
+  module * { export * }
+}
