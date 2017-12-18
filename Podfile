@@ -3,5 +3,5 @@
 
 target 'PSLoopScrollView' do
   use_frameworks!
-  pod 'Kingfisher', '~> 4.0'
+  pod 'PSLoopScrollView', :path=>'./'
 end
