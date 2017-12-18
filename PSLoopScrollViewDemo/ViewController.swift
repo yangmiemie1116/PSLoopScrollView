@@ -15,12 +15,21 @@ class ViewController: UIViewController, LoopScrollDelegate {
         super.viewDidLoad()
         self.scrollView = PSLoopScrollView(frame: self.view.bounds)
         self.view.addSubview(self.scrollView)
-        self.scrollView.loopDelegate = self
+        self.scrollView.delegate = self
         self.scrollView.reloadData()
+        self.scrollView.pageControl_y = self.view.frame.size.height - 20
     }
     
     func contentForLoop() -> Array<String> {
         return imageArr
+    }
+    
+    func pageIndicatorColor() -> UIColor {
+        return UIColor.green
+    }
+    
+    func currentPageIndicatorColor() -> UIColor {
+        return UIColor.red
     }
     
     func didSelectViewAtIndex(index: Int) {

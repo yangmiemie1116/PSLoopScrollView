@@ -11,35 +11,53 @@ import Kingfisher
 @objc public protocol LoopScrollDelegate:NSObjectProtocol {
     func contentForLoop() -> Array<String>
     @objc optional func didSelectViewAtIndex(index:Int)
+    @objc optional func pageIndicatorColor() -> UIColor
+    @objc optional func currentPageIndicatorColor() -> UIColor
 }
 
-public class PSLoopScrollView: UIScrollView, UIScrollViewDelegate {
+public class PSLoopScrollView: UIView, UIScrollViewDelegate {
     private var firstImageView:UIImageView!
     private var secondImageView:UIImageView!
     private var thirdImageView:UIImageView!
-    weak open var loopDelegate: LoopScrollDelegate?
+    weak open var delegate: LoopScrollDelegate?
+    public var pageControl_y:CGFloat {
+        set {
+            pageControl.frame = CGRect(x: 0, y: newValue, width: self.frame.size.width, height: 30)
+        }
+        get {
+            return pageControl.frame.origin.y
+        }
+    }
     private var imageArray:Array<String>!
     private var index = 0
+    var pageControl:UIPageControl!
+    private var scrollView:UIScrollView!
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.showsHorizontalScrollIndicator = false
-        self.bounces = false
-        self.delegate = self
-        self.isPagingEnabled = true
+        self.scrollView = UIScrollView(frame: frame)
+        self.scrollView.showsHorizontalScrollIndicator = false
+        self.scrollView.bounces = false
+        self.scrollView.delegate = self
+        self.scrollView.isPagingEnabled = true
+        self.addSubview(self.scrollView)
+        
+        self.pageControl = UIPageControl(frame: CGRect(x: 0, y: frame.size.height-25, width: frame.size.width, height: 30))
+        self.addSubview(self.pageControl)
+        
         firstImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: frame.size.width, height: frame.size.height))
-        self.addSubview(firstImageView)
+        self.scrollView.addSubview(firstImageView)
         firstImageView.isUserInteractionEnabled = true
         let tapFirst = UITapGestureRecognizer(target: self, action: #selector(self.tapFirstImageView))
         firstImageView.addGestureRecognizer(tapFirst)
         
         secondImageView = UIImageView(frame: CGRect(x: frame.size.width, y: 0, width: frame.size.width, height: frame.size.height))
-        self.addSubview(secondImageView)
+        self.scrollView.addSubview(secondImageView)
         secondImageView.isUserInteractionEnabled = true
         let tapSecond = UITapGestureRecognizer(target: self, action: #selector(self.tapFirstImageView))
         secondImageView.addGestureRecognizer(tapSecond)
         
         thirdImageView = UIImageView(frame: CGRect(x: 2*frame.size.width, y: 0, width: frame.size.width, height: frame.size.height))
-        self.addSubview(thirdImageView)
+        self.scrollView.addSubview(thirdImageView)
         thirdImageView.isUserInteractionEnabled = true
         let tapThird = UITapGestureRecognizer(target: self, action: #selector(self.tapFirstImageView))
         thirdImageView.addGestureRecognizer(tapThird)
@@ -50,26 +68,34 @@ public class PSLoopScrollView: UIScrollView, UIScrollViewDelegate {
     }
     
     @objc func tapFirstImageView() {
-        loopDelegate?.didSelectViewAtIndex?(index: self.index)
+        delegate?.didSelectViewAtIndex?(index: self.index)
     }
     
     public func reloadData() {
-        imageArray = loopDelegate?.contentForLoop()
+        self.pageControl.currentPageIndicatorTintColor = delegate?.currentPageIndicatorColor?()
+        self.pageControl.pageIndicatorTintColor = delegate?.pageIndicatorColor?()
+        imageArray = delegate?.contentForLoop()
+        self.pageControl.numberOfPages = imageArray.count
+        if imageArray.count > 1 {
+            self.pageControl.isHidden = false
+        } else {
+            self.pageControl.isHidden = true
+        }
         if imageArray.count >= 3 {
             firstImageView.kf.setImage(with: URL(string: imageArray[imageArray.count-1]))
             secondImageView.kf.setImage(with: URL(string: imageArray[0]))
             thirdImageView.kf.setImage(with: URL(string: imageArray[1]))
-            self.contentSize = CGSize(width: self.frame.size.width*3, height: self.frame.size.height)
-            self.scrollRectToVisible(CGRect(x:frame.size.width,y:0,width: frame.size.width, height: frame.size.height), animated: false)
+            self.scrollView.contentSize = CGSize(width: self.frame.size.width*3, height: self.frame.size.height)
+            self.scrollView.scrollRectToVisible(CGRect(x:frame.size.width,y:0,width: frame.size.width, height: frame.size.height), animated: false)
         } else if imageArray.count == 2 {
             firstImageView.kf.setImage(with: URL(string: imageArray[1]))
             secondImageView.kf.setImage(with: URL(string: imageArray[0]))
             thirdImageView.kf.setImage(with: URL(string: imageArray[1]))
-            self.contentSize = CGSize(width: self.frame.size.width*3, height: self.frame.size.height)
-            self.scrollRectToVisible(CGRect(x:self.frame.size.width,y:0,width: frame.size.width, height: frame.size.height), animated: false)
+            self.scrollView.contentSize = CGSize(width: self.frame.size.width*3, height: self.frame.size.height)
+            self.scrollView.scrollRectToVisible(CGRect(x:self.frame.size.width,y:0,width: frame.size.width, height: frame.size.height), animated: false)
         } else if imageArray.count == 1 {
             firstImageView.kf.setImage(with: URL(string: imageArray[0]))
-            self.contentSize = CGSize(width: self.frame.size.width, height: self.frame.size.height)
+            self.scrollView.contentSize = CGSize(width: self.frame.size.width, height: self.frame.size.height)
         }
     }
     
@@ -137,9 +163,10 @@ public class PSLoopScrollView: UIScrollView, UIScrollViewDelegate {
                 picName3 = imageArray[index-1]
             }
         }
+        self.pageControl.currentPage = index
         firstImageView.kf.setImage(with: URL(string: picName1))
         secondImageView.kf.setImage(with: URL(string: picName2))
         thirdImageView.kf.setImage(with: URL(string: picName3))
-        self.scrollRectToVisible(CGRect(x:self.frame.size.width,y:0,width: self.frame.size.width, height: self.frame.size.height), animated: false)
+        self.scrollView.scrollRectToVisible(CGRect(x:self.frame.size.width,y:0,width: self.frame.size.width, height: self.frame.size.height), animated: false)
     }
 }
