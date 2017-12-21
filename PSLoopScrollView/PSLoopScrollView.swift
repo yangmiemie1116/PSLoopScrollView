@@ -8,6 +8,7 @@
 
 import UIKit
 import Kingfisher
+import Foundation
 @objc public protocol LoopScrollDelegate:NSObjectProtocol {
     func contentForLoop() -> Array<String>
     @objc optional func didSelectViewAtIndex(index:Int)
@@ -20,6 +21,7 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
     private var secondImageView:UIImageView!
     private var thirdImageView:UIImageView!
     weak open var delegate: LoopScrollDelegate?
+    public var enableTimer:Bool! = false
     public var pageControl_y:CGFloat {
         set {
             pageControl.frame = CGRect(x: 0, y: newValue, width: self.frame.size.width, height: 30)
@@ -32,7 +34,8 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
     private var index = 0
     var pageControl:UIPageControl!
     private var scrollView:UIScrollView!
-    override init(frame: CGRect) {
+    private var timer:Timer!
+    override public init(frame: CGRect) {
         super.init(frame: frame)
         self.scrollView = UIScrollView(frame: frame)
         self.scrollView.showsHorizontalScrollIndicator = false
@@ -82,12 +85,18 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
             self.pageControl.isHidden = true
         }
         if imageArray.count >= 3 {
+            if enableTimer {
+                timer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(self.startTimer), userInfo: nil, repeats: true)
+            }
             firstImageView.kf.setImage(with: URL(string: imageArray[imageArray.count-1]))
             secondImageView.kf.setImage(with: URL(string: imageArray[0]))
             thirdImageView.kf.setImage(with: URL(string: imageArray[1]))
             self.scrollView.contentSize = CGSize(width: self.frame.size.width*3, height: self.frame.size.height)
             self.scrollView.scrollRectToVisible(CGRect(x:frame.size.width,y:0,width: frame.size.width, height: frame.size.height), animated: false)
         } else if imageArray.count == 2 {
+            if enableTimer {
+                timer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(self.startTimer), userInfo: nil, repeats: true)
+            }
             firstImageView.kf.setImage(with: URL(string: imageArray[1]))
             secondImageView.kf.setImage(with: URL(string: imageArray[0]))
             thirdImageView.kf.setImage(with: URL(string: imageArray[1]))
@@ -99,7 +108,12 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
         }
     }
     
-    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+    @objc func startTimer() {
+        self.scrollView.scrollRectToVisible(CGRect(x:self.frame.size.width*2,y:0,width: self.frame.size.width, height: self.frame.size.height), animated: true)
+        self.loopResult()
+    }
+    
+    func loopResult() {
         let offset_x = scrollView.contentOffset.x
         let width = self.frame.size.width
         if offset_x > width {
@@ -168,5 +182,25 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
         secondImageView.kf.setImage(with: URL(string: picName2))
         thirdImageView.kf.setImage(with: URL(string: picName3))
         self.scrollView.scrollRectToVisible(CGRect(x:self.frame.size.width,y:0,width: self.frame.size.width, height: self.frame.size.height), animated: false)
+    }
+    
+    public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        timer.invalidate()
+    }
+    
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if imageArray.count > 1 {
+            if enableTimer {
+                timer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(self.startTimer), userInfo: nil, repeats: true)
+            }
+        }
+    }
+    
+    public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        self.loopResult()
+    }
+    
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        self.loopResult()
     }
 }
