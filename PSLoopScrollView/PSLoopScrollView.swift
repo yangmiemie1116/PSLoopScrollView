@@ -87,6 +87,7 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
         if imageArray.count >= 3 {
             if enableTimer {
                 timer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(self.startTimer), userInfo: nil, repeats: true)
+                RunLoop.current.add(timer, forMode: RunLoopMode.commonModes)
             }
             firstImageView.kf.setImage(with: URL(string: imageArray[imageArray.count-1]))
             secondImageView.kf.setImage(with: URL(string: imageArray[0]))
@@ -96,6 +97,7 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
         } else if imageArray.count == 2 {
             if enableTimer {
                 timer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(self.startTimer), userInfo: nil, repeats: true)
+                RunLoop.current.add(timer, forMode: RunLoopMode.commonModes)
             }
             firstImageView.kf.setImage(with: URL(string: imageArray[1]))
             secondImageView.kf.setImage(with: URL(string: imageArray[0]))
@@ -192,6 +194,7 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
         if imageArray.count > 1 {
             if enableTimer {
                 timer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(self.startTimer), userInfo: nil, repeats: true)
+                RunLoop.current.add(timer, forMode: RunLoopMode.commonModes)
             }
         }
     }
