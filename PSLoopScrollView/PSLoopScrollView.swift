@@ -75,6 +75,10 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
     }
     
     public func reloadData() {
+        if timer != nil {
+            timer.invalidate()
+            timer = nil
+        }
         self.pageControl.currentPageIndicatorTintColor = delegate?.currentPageIndicatorColor?()
         self.pageControl.pageIndicatorTintColor = delegate?.pageIndicatorColor?()
         imageArray = delegate?.contentForLoop()
@@ -112,7 +116,6 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
     
     @objc func startTimer() {
         self.scrollView.scrollRectToVisible(CGRect(x:self.frame.size.width*2,y:0,width: self.frame.size.width, height: self.frame.size.height), animated: true)
-        self.loopResult()
     }
     
     func loopResult() {
@@ -188,6 +191,7 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
     
     public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         timer.invalidate()
+        timer = nil
     }
     
     public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {

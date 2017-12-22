@@ -16,6 +16,7 @@ class ViewController: UIViewController, LoopScrollDelegate {
         self.scrollView = PSLoopScrollView(frame: self.view.bounds)
         self.view.addSubview(self.scrollView)
         self.scrollView.delegate = self
+        self.scrollView.enableTimer = true
         self.scrollView.reloadData()
         self.scrollView.pageControl_y = self.view.frame.size.height - 20
     }
