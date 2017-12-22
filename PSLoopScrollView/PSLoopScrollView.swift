@@ -22,6 +22,7 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
     private var thirdImageView:UIImageView!
     weak open var delegate: LoopScrollDelegate?
     public var enableTimer:Bool! = false
+    public var interval = 3.0
     public var pageControl_y:CGFloat {
         set {
             pageControl.frame = CGRect(x: 0, y: newValue, width: self.frame.size.width, height: 30)
@@ -90,7 +91,7 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
         }
         if imageArray.count >= 3 {
             if enableTimer {
-                timer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(self.startTimer), userInfo: nil, repeats: true)
+                timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(self.startTimer), userInfo: nil, repeats: true)
                 RunLoop.current.add(timer, forMode: RunLoopMode.commonModes)
             }
             firstImageView.kf.setImage(with: URL(string: imageArray[imageArray.count-1]))
@@ -100,7 +101,7 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
             self.scrollView.scrollRectToVisible(CGRect(x:frame.size.width,y:0,width: frame.size.width, height: frame.size.height), animated: false)
         } else if imageArray.count == 2 {
             if enableTimer {
-                timer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(self.startTimer), userInfo: nil, repeats: true)
+                timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(self.startTimer), userInfo: nil, repeats: true)
                 RunLoop.current.add(timer, forMode: RunLoopMode.commonModes)
             }
             firstImageView.kf.setImage(with: URL(string: imageArray[1]))
@@ -197,7 +198,7 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
     public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if imageArray.count > 1 {
             if enableTimer {
-                timer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(self.startTimer), userInfo: nil, repeats: true)
+                timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(self.startTimer), userInfo: nil, repeats: true)
                 RunLoop.current.add(timer, forMode: RunLoopMode.commonModes)
             }
         }
