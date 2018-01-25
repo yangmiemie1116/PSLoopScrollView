@@ -89,6 +89,8 @@ public class PSLoopScrollView: UIView, UIScrollViewDelegate {
         } else {
             self.pageControl.isHidden = true
         }
+        self.pageControl.currentPage = 0
+        index = 0
         if imageArray.count >= 3 {
             if enableTimer {
                 timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(self.startTimer), userInfo: nil, repeats: true)
